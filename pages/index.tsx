@@ -40,7 +40,7 @@ export default function Home({ notes }: Notes) {
           method: "PUT",
         });
       } else {
-        fetch(`217.69.13.237/api/note/create`, {
+        fetch(`217.69.10.168/api/note/create`, {
           body: JSON.stringify(data),
           headers: {
             "Content-Type": "application/json",

@@ -38,7 +38,7 @@ export default function Home({ notes }: Notes) {
             "Content-Type": "application/json",
           },
           method: "PUT",
-        }).then(() => console.log("we update in then"));
+        });
       } else {
         fetch(`http://localhost:3000/api/note/create`, {
           body: JSON.stringify(data),
@@ -46,12 +46,9 @@ export default function Home({ notes }: Notes) {
             "Content-Type": "application/json",
           },
           method: "POST",
-        })
-          .then(() => {
-            console.log("then we create");
-          })
-          .catch((e) => console.log(e));
+        });
       }
+      refresh_data();
     } catch (error) {
       console.log(error);
     }

@@ -32,7 +32,7 @@ export default function Home({ notes }: Notes) {
   async function create(data: FormData) {
     try {
       if (data.id) {
-        fetch(`217.69.13.237/api/note/${data.id}`, {
+        fetch(`217.69.10.168/api/note/${data.id}`, {
           body: JSON.stringify(data),
           headers: {
             "Content-Type": "application/json",
@@ -56,7 +56,7 @@ export default function Home({ notes }: Notes) {
 
   const delete_fn = async (id: string) => {
     try {
-      await fetch(`217.69.13.237/api/note/${id}`, {
+      await fetch(`217.69.10.168/api/note/${id}`, {
         headers: {
           "Content-Type": "application/json",
         },

@@ -1,6 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { prisma } from "../lib/prisma";
 import { useRouter } from "next/router";
+import Head from "next/head";
+import Hero from "../src/modules/Hero/Hero";
+import Instagram from "../src/modules/Instagram/Instagram";
+import Slider from "../src/modules/slider/Slider";
+import Para from "../src/modules/parallax/Parallax_1";
 
 interface FormData {
   title: string;
@@ -14,9 +19,22 @@ interface Notes {
     title: string;
     content: string;
   }[];
+
+  ig_feed: any;
 }
 
-export default function Home({ notes }: Notes) {
+export default function Home({ notes, ig_feed }: Notes) {
+  const [aspect_ratio, set_aspect_ratio] = useState(0);
+  useEffect(() => {
+    const height: number = window.innerHeight;
+    const width: number = window.innerWidth;
+
+    let aspect_ratio = width / height;
+    if (aspect_ratio <= 9 / 16) aspect_ratio = 9 / 16;
+    if (aspect_ratio >= 16 / 9) aspect_ratio = 16 / 9;
+    set_aspect_ratio(aspect_ratio);
+  }, []);
+
   const [form, setForm] = useState<FormData>({
     title: "",
     content: "",
@@ -32,7 +50,7 @@ export default function Home({ notes }: Notes) {
   async function create(data: FormData) {
     try {
       if (data.id) {
-        fetch(`217.69.10.168/api/note/${data.id}`, {
+        fetch(`http://localhost:3000/api/note/${data.id}`, {
           body: JSON.stringify(data),
           headers: {
             "Content-Type": "application/json",
@@ -40,7 +58,7 @@ export default function Home({ notes }: Notes) {
           method: "PUT",
         });
       } else {
-        fetch(`217.69.10.168/api/note/create`, {
+        fetch(`http://localhost:3000/api/note/create`, {
           body: JSON.stringify(data),
           headers: {
             "Content-Type": "application/json",
@@ -83,7 +101,19 @@ export default function Home({ notes }: Notes) {
   };
 
   return (
-    <div>
+    <div className="relative bg-slate-200">
+      <Head>
+        <title>ODDI</title>
+      </Head>
+
+      <Hero
+        heading="ODDI in collaboration with OISDG"
+        message="what we care about"
+      />
+
+      <Slider />
+      <Para />
+
       <h1 className="text-center font-bold text-2xl mt-4">Notes for testing</h1>
       <form
         onSubmit={(e) => {
@@ -135,7 +165,7 @@ export default function Home({ notes }: Notes) {
                       }}
                       className="bg-blue-500 text-white p-1 mr-2"
                     >
-                      update
+                      modifier
                     </button>
 
                     <h1 className="font-bold">{note.title}</h1>
@@ -148,11 +178,13 @@ export default function Home({ notes }: Notes) {
           ))}
         </ul>
       </div>
+
+      <Instagram ig_feed={ig_feed} />
     </div>
   );
 }
 
-export const getStaticProps = async () => {
+export const getServerSideProps = async () => {
   const notes = await prisma.note.findMany({
     // created_at and updated_at can be dificult to retreive that's why I add these parameters in findMany function
     select: {
@@ -163,9 +195,17 @@ export const getStaticProps = async () => {
     orderBy: { created_at: "desc" },
   });
 
+  const ig_url = `https://graph.instagram.com/me/media?fields=id,caption,media_url,timestamp,media_type,permalink&access_token=${process.env.INSTAGRAM_KEY}`;
+
+  const data = await fetch(ig_url);
+  const ig_feed = await data.json();
+
+  console.log("insta posts", ig_feed.data);
+
   return {
     props: {
       notes,
+      ig_feed,
     },
   };
 };
